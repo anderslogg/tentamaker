@@ -1,11 +1,11 @@
 [build-system]
-requires = ["setuptools>=61.0.0", "wheel"]
+requires = ["setuptools>=61.0.0", "setuptools-scm", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 version = "0.1.0"
 name = "tentamaker"
-description = "TentaMaker
+description = "TentaMaker"
 readme = "README.md"
 authors = [
   { name = "Anders Logg", email = "logg@chalmers.se" },
@@ -17,3 +17,7 @@ classifiers = [
   "License :: OSI Approved :: MIT License",
 ]
 dependencies = []
+
+[project.scripts]
+init-exam = "tentamaker.scripts:init_exam.main"
+make-exam = "tentamaker.scripts:make_exam.main"
