@@ -36,6 +36,9 @@ running LaTeX (pdflatex).
 
 Add `--randomize` to randomize the selection of questions.
 
+Add `--no-snapshots` to skip generation of PNG snapshots. This is useful during
+the creation of an exam (not creating PNG files until the exam is final).
+
 ## Authors (in order of appearance)
 
 * [Anders Logg](http://anders.logg.org)

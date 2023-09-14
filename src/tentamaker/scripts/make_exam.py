@@ -4,8 +4,18 @@
 import sys, os, re, random, toml, subprocess, shutil
 
 from tentamaker import _version, _config_path_local
-from tentamaker import _dir_config, _dir_tex, _dir_pdf, _dir_tmp
-from tentamaker import _config, _pool, _header, _footer, _config
+from tentamaker import _dir_config, _dir_tex, _dir_pdf, _dir_png, _dir_tmp
+from tentamaker import _config, _pool, _header, _footer, _config, _snapshot
+
+
+def uniq(seqeuence):
+    "Return unique elements in sequence"
+    return sorted(list(set(seqeuence)))
+
+
+def exam_prefix(exam_date, code, _exam, include_solutions=True):
+    tes = "-tes" if not include_solutions else ""
+    return f"{_exam.lower()}-{code.lower()}-{exam_date}{tes}"
 
 
 def load_questions():
@@ -77,11 +87,6 @@ def load_questions():
     return questions
 
 
-def uniq(seqeuence):
-    "Return unique elements in sequence"
-    return sorted(list(set(seqeuence)))
-
-
 def create_selection(questions, randomize):
     "Create selection of questions"
 
@@ -119,7 +124,9 @@ def create_selection(questions, randomize):
     return selection
 
 
-def create_tex(questions, selection, exam_date, include_solutions=True, verbose=False):
+def build_pdf(questions, selection, exam_date, include_solutions=True, verbose=False):
+    "Build PDF file from selection of questions"
+
     tex = ""
 
     # Load config
@@ -198,24 +205,78 @@ def create_tex(questions, selection, exam_date, include_solutions=True, verbose=
         footer = f.read()
         tex += footer
 
-    # Write TeX to file
-    tes = "-tes" if not include_solutions else ""
-    prefix = f"{config['_exam'].lower()}-{config['code'].lower()}-{exam_date}{tes}"
+    # Set file names
+    prefix = exam_prefix(exam_date, config["code"], config["_exam"], include_solutions)
     tex_file = prefix + ".tex"
+    pdf_file = prefix + ".pdf"
+
+    # Write TeX to file(s)
     with open(_dir_tex / tex_file, "w") as f:
         f.write(tex)
     with open(_dir_tmp / tex_file, "w") as f:
         f.write(tex)
     print(f"Exam written to {_dir_tex / tex_file}")
 
-    # Create to PDF
-    print("Building PDF file...")
-    pdf_file = prefix + ".pdf"
+    # Build PDF
     os.chdir(_dir_tmp)
-    result = subprocess.run(["pdflatex", tex_file], capture_output=(not verbose))
+    subprocess.run(["pdflatex", tex_file], capture_output=(not verbose))
     os.chdir("..")
     shutil.copy(_dir_tmp / pdf_file, _dir_pdf)
     print(f"Exam written to {_dir_pdf / pdf_file}")
+
+
+def build_png(questions, selection, exam_date, verbose=False):
+    "Build PNG files from selection of questions"
+
+    # Load config
+    config = toml.load(_config_path_local / _config)
+
+    # Iterate over questions
+    for key in selection:
+        tex = ""
+
+        # Add header
+        with open(_dir_config / _snapshot) as f:
+            header = f.read()
+            tex += header
+
+        # Add question
+        part, number, index = key
+        question, answer, solution = questions[key]
+        tex += "\\begin{minipage}{12cm}\n"
+        tex += question + "\n"
+        tex += "\\end{minipage}\n"
+
+        # Add footer
+        with open(_dir_config / _footer) as f:
+            footer = f.read()
+            tex += footer
+
+        # Set file names
+        prefix = "%s_%d_%d" % (part, number, index)
+        tex_file = prefix + ".tex"
+        pdf_file = prefix + ".pdf"
+        png_file = prefix + ".png"
+
+        # Write TeX to file
+        with open(_dir_tmp / tex_file, "w") as f:
+            f.write(tex)
+
+        # Build PDF and PNG
+        os.chdir(_dir_tmp)
+        subprocess.run(["pdflatex", tex_file], capture_output=(not verbose))
+        subprocess.run(
+            ["convert", "-density", "600", pdf_file, png_file],
+            capture_output=(not verbose),
+        )
+        os.chdir("..")
+
+        # Copy PNG file to snapshot directory
+        png_dir = exam_prefix(exam_date, config["code"], config["_exam"])
+        if not os.path.exists(_dir_png / png_dir):
+            os.mkdir(_dir_png / png_dir)
+        shutil.copy(_dir_tmp / png_file, _dir_png / png_dir)
+        print(f"Snapshot written to {_dir_png / png_dir / png_file}")
 
 
 def help():
@@ -237,6 +298,7 @@ def main():
     exam_date = sys.argv[1]
     randomize = "--randomize" in sys.argv
     verbose = "--verbose" in sys.argv
+    snapshots = "--no-snapshots" not in sys.argv
 
     # Load questions from pool
     questions = load_questions()
@@ -244,12 +306,13 @@ def main():
     # Create selection of questions
     selection = create_selection(questions, randomize)
 
-    # with open(TMP_DIRECTORY + "/" + texFile, "w") as f:
-    #    f.write(tex)
+    # Build PDF files
+    build_pdf(questions, selection, exam_date, True, verbose)
+    # build_pdf(questions, selection, exam_date, False, verbose)
 
-    # Generate exam as PDF, with and without solutions
-    create_tex(questions, selection, exam_date, include_solutions=True, verbose=verbose)
-    # create_tex(questions, selection, exam_date, include_solutions=False)
+    # Build PNG files (snapshots)
+    if snapshots:
+        build_png(questions, selection, exam_date, verbose=verbose)
 
 
 def old():
@@ -257,77 +320,6 @@ def old():
     SNAPSHOT = "snapshot.tex"
     QUESTION_DIRECTORY = "questions"
     SOLUTION_DIRECTORY = "solutions"
-
-    def GenerateSnapshots(questions, selection):
-        # Iterate over questions
-        for key in selection:
-            tex = ""
-
-            # Add header
-            with open(SNAPSHOT) as f:
-                header = f.read()
-                tex += header
-
-            # Add question
-            part, number, index = key
-            question, answer, solution = questions[key]
-            tex += "\\begin{minipage}{12cm}\n"
-            tex += question + "\n"
-            tex += "\\end{minipage}\n"
-
-            # Add footer
-            with open(FOOTER) as f:
-                footer = f.read()
-                tex += footer
-
-            # Write file
-            prefix = "%s_%d_%d" % (part, number, index)
-            texFile = prefix + ".tex"
-            with open(TMP_DIRECTORY + "/" + texFile, "w") as f:
-                print("Writing " + texFile + "...")
-                f.write(tex)
-
-            # Convert to PNG
-            pdfFile = prefix + ".pdf"
-            pngFile = prefix + ".png"
-            questionDirectory = QUESTION_DIRECTORY + "/" + EXAM_NAME + "-" + examDate
-            os.system("cd %s && pdflatex %s" % (TMP_DIRECTORY, texFile))
-            # os.system('cd %s && sips --resampleWidth 2048 -s format png %s --out %s' % (TMP_DIRECTORY, pdfFile, pngFile))
-            os.system(
-                "cd %s && convert -density 600 %s %s"
-                % (TMP_DIRECTORY, pdfFile, pngFile)
-            )
-            os.system("mkdir -p %s" % questionDirectory)
-            os.system("mv %s/%s %s" % (TMP_DIRECTORY, pngFile, questionDirectory))
-
-    def WriteSelection(selection, examDate):
-        s = ""
-        for part, number, index in selection:
-            s += "%s,%d,%d\n" % (part, number, index)
-        fileName = "selections/%s.csv" % examDate
-        print("Writing selection to %s" % fileName)
-        with open(fileName, "w") as f:
-            f.write(s)
-
-    def ReadSelection(examDate):
-        try:
-            fileName = "selections/%s.csv" % examDate
-            print("Reading selection from %s" % fileName)
-            with open(fileName) as f:
-                lines = f.read().split()
-                selection = []
-                for line in lines:
-                    part, number, index = line.split(",")
-                    selection.append((part, int(number), int(index)))
-                return selection
-        except:
-            print("No previous selection found, generating new exam")
-            return None
-
-    def PrintSelection(selection):
-        print("Selection of questions:\n")
-        for part, number, index in selection:
-            print("  %s.%d.%d" % (part, number, index))
 
     # EDITING STARTS HERE
 

@@ -13,6 +13,7 @@ _config = "config.toml"
 _pool = "pool.tex"
 _header = "header.tex"
 _footer = "footer.tex"
+_snapshot = "snapshot.tex"
 
 _version = importlib.metadata.version("tentamaker")
 _config_path_system = importlib.resources.files("tentamaker") / _dir_config
