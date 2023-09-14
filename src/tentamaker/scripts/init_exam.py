@@ -2,28 +2,27 @@
 # Licensed under the MIT License
 
 import os, shutil
-import importlib.resources
-import importlib.metadata
+
+
+from tentamaker import _version, _dirs, _config_path_system, _config_path_local
 
 
 def main():
-    print(f"This is TentaMaker, version {importlib.metadata.version('tentamaker')}\n")
-
+    print(f"This is TentaMaker, version {_version}\n")
     print("Initializing exam...")
 
     # Create directories (if they don't exist)
-    directories = ["tex", "pdf", "png", "tmp"]
-    for directory in directories:
+    for directory in _dirs:
         if not os.path.exists(directory):
             print("Creating directory '%s'" % directory)
             os.mkdir(directory)
         else:
             print("Directory '%s' already exists" % directory)
 
-    # Add question pool (if it doesn't exist)
-    if not os.path.exists("pool.tex"):
-        print("Copying question pool to 'pool.tex'")
-        path = importlib.resources.files("tentamaker") / "resources" / "pool.tex"
-        shutil.copy(path, "pool.tex")
-    else:
-        print("File 'pool.tex' already exists")
+    # Add config files
+    for file in os.listdir(_config_path_system):
+        if not os.path.exists(_config_path_local / file):
+            print("Copying config file '%s'" % file)
+            shutil.copy(_config_path_system / file, _config_path_local / file)
+        else:
+            print("Config file '%s' already exists, not overwriting" % file)

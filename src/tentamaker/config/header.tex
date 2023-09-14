@@ -1,0 +1,84 @@
+\documentclass[a4paper,11pt]{article}
+
+% Packages
+\usepackage[swedish]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{a4wide}
+\usepackage{graphicx}
+\usepackage{amssymb,amsmath}
+\usepackage{dashrule}
+\usepackage{marginnote}
+\usepackage{siunitx}
+\usepackage{marvosym}
+\usepackage{listings}
+
+% Notation
+\input{../config/notation}
+
+% Geometry
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{11pt}
+\setcounter{secnumdepth}{0}
+\setlength{\topmargin}{-20mm}
+\setlength{\textheight}{255mm}
+
+% Python listings
+\lstset{
+  language=Python,
+  basicstyle=\small\sffamily,
+  commentstyle=\color{olive},
+  keywordstyle=\color{blue},
+  numberstyle=\tiny\color{gray},
+  numbers=left,
+  rulecolor=\color{black},
+  tabsize=4,
+  breaklines=true,
+  showstringspaces=false,
+  stringstyle=\color{red},
+  frame=single,
+  captionpos=b,
+  literate={:}{{\textcolor{black}{:}}}1
+}
+
+\begin{document}
+
+% Header
+\footnotesize
+\bf\noindent
+DEPARTMENT \hfill _EXAM EXAM_DATE \\
+SCHOOL \hfill Kurskod: CODE \\
+_EXAMINER: EXAMINER, _PHONE:~PHONE \hfill Hjälpmedel: inga
+
+\linespread{1.5}
+
+\bigskip
+
+\begin{center}
+
+  \Large\bf
+
+  TENTAMEN EXAM_DATE
+
+  \smallskip
+
+  CODE TITLE
+
+  \bigskip
+
+\end{center}
+
+\rm
+\large
+
+\hrule
+
+\smallskip
+
+\noindent
+\input{../config/instructions}
+
+\bigskip
+
+{\emph{GOOD_LUCK!} \\[1em] EXAMINER_FIRST}
+
+\newpage

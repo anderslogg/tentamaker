@@ -20,7 +20,21 @@ and enter the directory, for example:
 
 Then, run the following command to create the initial structure for your exams:
 
-    $ tentamaker-init
+    $ init-exam
+
+Then, do this:
+
+    $ make-exam yyyy-mm-yy
+
+Where `yyyy-mm-yy` is the date of the exam,
+
+The command `make-exam` supports the follow optional command-line arguments:
+
+Add `--verbose` to see more detailed output. This is useful for example if the
+process hangs at "Building PDF file..." to see what might have gone wrong when
+running LaTeX (pdflatex).
+
+Add `--randomize` to randomize the selection of questions.
 
 ## Authors (in order of appearance)
 

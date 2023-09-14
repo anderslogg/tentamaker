@@ -16,7 +16,7 @@ classifiers = [
   "Programming Language :: Python :: 3",
   "License :: OSI Approved :: MIT License",
 ]
-dependencies = []
+dependencies = ["toml"]
 
 [project.scripts]
 init-exam = "tentamaker.scripts:init_exam.main"
