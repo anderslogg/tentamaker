@@ -33,3 +33,29 @@ Polära koordinater ger
   = 32 \cdot \frac{1}{4} \cdot \left(1 - \frac1{16}\right) = \frac{15}2
 \end{align*}
 %
+
+% C.1.1
+Vilket tal är det tänkt att programmet skall räkna ut (variabeln \texttt{y})? \\
+\begin{python}
+from numpy.linalg import *
+
+x = 1
+y = 1
+
+for k in range(1000):
+    A = [[2*x, 2*y], [-2*x, 1]]
+    b = [x**2 + y**2 - 42, y - x**2]
+    sol = solve(A, b)
+    x = x - sol[0]
+    y = y - sol[1]
+
+print(y)
+\end{python}
+% $6$
+Programmet beräknar en lösning till ekvationssystemet
+\begin{align*}
+  x^2 + y^2 &= 42 \\
+  y &= x^2
+\end{align*}
+med Newtons metod. Lösningarna är $(x, y) = (\pm\sqrt{6}, 6)$ och således $y = 6
+$.

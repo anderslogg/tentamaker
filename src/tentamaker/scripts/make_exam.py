@@ -66,12 +66,12 @@ def load_questions():
 
                 # Store line
                 if state is Q:
-                    question += " " + line
+                    question += "\n" + line
                 elif state is A:
                     answer = line[1:]
                     state = S
                 elif state is S:
-                    solution += " " + line
+                    solution += "\n" + line
 
             # Move to last line
             i = j
