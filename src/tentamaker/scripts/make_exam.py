@@ -313,19 +313,3 @@ def main():
     # Build PNG files (snapshots)
     if snapshots:
         build_png(questions, selection, exam_date, verbose=verbose)
-
-
-def old():
-    ANSWER_NAME = "Svar"
-    SNAPSHOT = "snapshot.tex"
-    QUESTION_DIRECTORY = "questions"
-    SOLUTION_DIRECTORY = "solutions"
-
-    # EDITING STARTS HERE
-
-    # Generate snapshots (comment out during exam development)
-    if not noSnapshots:
-        GenerateSnapshots(questions, selection)
-
-    # Print selection of questions
-    PrintSelection(selection)
