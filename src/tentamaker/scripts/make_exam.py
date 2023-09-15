@@ -14,6 +14,7 @@ def uniq(seqeuence):
 
 
 def exam_prefix(exam_date, code, _exam, include_solutions=True):
+    "Return prefix for exam file"
     tes = "-tes" if not include_solutions else ""
     return f"{_exam.lower()}-{code.lower()}-{exam_date}{tes}"
 
@@ -326,7 +327,7 @@ def main():
 
     # Build PDF files
     build_pdf(questions, selection, exam_date, True, verbose)
-    # build_pdf(questions, selection, exam_date, False, verbose)
+    build_pdf(questions, selection, exam_date, False, verbose)
 
     # Build PNG files (snapshots)
     if snapshots:
