@@ -92,7 +92,6 @@ def create_selection(questions, randomize):
 
     # Load config
     config = toml.load(_config_path_local / _config)
-    print(config)
 
     # Seed random number generator
     if randomize:
@@ -246,6 +245,9 @@ def build_pdf(questions, selection, exam_date, include_solutions=True, verbose=F
 
 def build_png(questions, selection, exam_date, verbose=False):
     "Build PNG files from selection of questions"
+
+    # Load config
+    config = toml.load(_config_path_local / _config)
 
     # Iterate over questions
     for key in selection:
