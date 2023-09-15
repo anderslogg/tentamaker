@@ -90,8 +90,17 @@ def load_questions():
 def create_selection(questions, randomize):
     "Create selection of questions"
 
+    # Load config
+    config = toml.load(_config_path_local / _config)
+    print(config)
+
     # Seed random number generator
     if randomize:
+        if "seed" in config:
+            seed = config["seed"]
+        else:
+            seed = os.urandom(4)
+        print(f"Randomizing questions using seed {seed}")
         random.seed(os.urandom(4))
 
     # Get keys and parts
@@ -120,6 +129,10 @@ def create_selection(questions, randomize):
             selection.append(key)
 
     print(f"Created selection of {len(questions)} questions")
+    print()
+    for part, number, index in selection:
+        print(f"  {part}.{number}.{index}")
+    print()
 
     return selection
 
@@ -149,6 +162,8 @@ def build_pdf(questions, selection, exam_date, include_solutions=True, verbose=F
         header = header.replace("DEPARTMENT", config["department"].upper())
         header = header.replace("SCHOOL", config["school"])
         header = header.replace("GOOD_LUCK", config["_good_luck"].capitalize())
+        header = header.replace("_TOOLS", config["_tools"].title())
+        header = header.replace("TOOLS", config["tools"].title())
         tex += header
 
     # Add questions
@@ -185,6 +200,10 @@ def build_pdf(questions, selection, exam_date, include_solutions=True, verbose=F
         for key in selection:
             part, number, index = key
             question, answer, solution = questions[key]
+            _bp = "\\begin{python}"
+            _ep = "\\end{python}"
+            if _bp in question:  # Remove Python code in solution
+                question = question.split(_bp)[0] + question.split(_ep)[1]
             tex += f"\\item[\\textbf{{{part}.{number}}}]\n"
             tex += "\\it\n"
             tex += question
@@ -227,9 +246,6 @@ def build_pdf(questions, selection, exam_date, include_solutions=True, verbose=F
 
 def build_png(questions, selection, exam_date, verbose=False):
     "Build PNG files from selection of questions"
-
-    # Load config
-    config = toml.load(_config_path_local / _config)
 
     # Iterate over questions
     for key in selection:
