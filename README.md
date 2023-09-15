@@ -49,7 +49,7 @@ When generating exams, the *last variant* of each question is selected, unless
 the randomization option is set (see below).
 
 The next step is to edit the configuration file `conf/conf.toml` to set the name
-of the exame course code, name of examiner etc.
+of the course, the course code, name of examiner etc.
 
 Once this is done, you may proceed to generate the exam by running the following
 command:
