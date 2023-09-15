@@ -40,7 +40,7 @@ See the file `config/pool.tex` for examples of how to write questions and
 solutions.
 
 Each question has a label in the format `X.y.z` where `X` is a capital letter
-(`A`, `B', `C`, ...) denoting which part of the exam that the question belongs
+(`A`, `B`, `C`, ...) denoting which part of the exam that the question belongs
 to. The number `y` denotes the number of the question within the part `X` and
 the number `z` denotes a variant of the question. Each question can have many
 variants.
