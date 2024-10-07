@@ -30,19 +30,27 @@ def load_questions():
     questions = {}
 
     # Regular expression for matching start of question
-    question_pattern = r"^%\s+[A-Za-z]\.\d+\.\d+$"
+    question_pattern = r"^%\s+([A-Za-z])\.(\d+)\.(\d+)(?:\s+(.*))?$"
+
+    # Note: This also matches things like this:
+    #
+    # A.1.2 [VARIANT OF: A.1.3]
+    #
+    # or any other string after x.y.z. Note that the
+    # variants are not yet handled by this script.
 
     # Parse questions
     num_lines = len(lines)
     i = 0
     while i < num_lines:
         line = lines[i]
-        if bool(re.match(question_pattern, line)):
+        match = re.match(question_pattern, line)
+        if match:
             # Parse key
-            label = line.split("%")[1].strip().split(".")
-            part = label[0]
-            number = int(label[1])
-            index = int(label[2])
+            part = match.group(1)
+            number = int(match.group(2))
+            index = int(match.group(3))
+            remainder = match.group(4)
             key = (part, number, index)
 
             # State machine for parsing each question
