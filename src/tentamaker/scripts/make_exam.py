@@ -4,7 +4,7 @@
 import sys, os, re, random, toml, subprocess, shutil
 
 from tentamaker import _version, _config_path_local
-from tentamaker import _dir_config, _dir_tex, _dir_pdf, _dir_png, _dir_tmp
+from tentamaker import _dir_config, _dir_tex, _dir_pdf, _dir_png, _dir_tmp, _dir_selection
 from tentamaker import _config, _pool, _header, _footer, _config, _snapshot
 
 
@@ -96,11 +96,27 @@ def load_questions():
     return questions
 
 
-def create_selection(questions, randomize):
+def create_selection(questions, randomize, exam_date):
     "Create selection of questions"
 
     # Load config
     config = toml.load(_config_path_local / _config)
+
+    # Get existing selections
+    existing_dates = sorted(f.split(".csv")[0] for f in os.listdir(_dir_selection))
+
+    # Reuse existing selection if any
+    if exam_date in existing_dates:
+        print(f"Reusing existing selection {exam_date}")
+        return load_selection(exam_date)
+
+    # Load selection to avoid if any (last)
+    previous_dates = [d for d in existing_dates if d != exam_date]
+    previous_selection = None
+    if len(previous_dates) > 0:
+        previous_date = previous_dates[-1]
+        previous_selection = load_selection(previous_date)
+        print(f"Avoiding previous selection {previous_date}")
 
     # Seed random number generator
     if randomize:
@@ -128,7 +144,16 @@ def create_selection(questions, randomize):
 
             # Randomize or pick last question
             if randomize:
-                index = indices[random.randrange(len(indices))]
+                while True:
+                    index = indices[random.randrange(len(indices))]
+                    key = (part, number, index)
+                    if previous_selection is None:
+                        break
+                    if key in previous_selection:
+                        print(f"Avoiding {key[0]}.{key[1]}.{key[2]} from previous selection")
+                        pass
+                    else:
+                        break
             else:
                 index = indices[-1]
 
@@ -136,14 +161,30 @@ def create_selection(questions, randomize):
             key = (part, number, index)
             selection.append(key)
 
-    print(f"Created selection of {len(questions)} questions")
+    return selection
+
+def print_selection(selection):
+    "Print selection"
+    print()
+    print(f"Created selection of {len(selection)} questions")
     print()
     for part, number, index in selection:
         print(f"  {part}.{number}.{index}")
     print()
 
-    return selection
+def save_selection(selection, exam_date):
+    "Save selection to file"
+    with open(_dir_selection / f"{exam_date}.csv", "w") as f:
+        f.write("\n".join(f"{x}.{y}.{z}" for (x, y, z) in selection) + "\n")
 
+def load_selection(exam_date):
+    "Load selection from file"
+    with open(_dir_selection / f"{exam_date}.csv") as f:
+        selection = []
+        for key in f.read().strip().split():
+            part, number, index = key.split(".")
+            selection.append((part, int(number), int(index)))
+    return selection
 
 def build_pdf(questions, selection, exam_date, include_solutions=True, verbose=False):
     "Build PDF file from selection of questions"
@@ -331,7 +372,11 @@ def main():
     questions = load_questions()
 
     # Create selection of questions
-    selection = create_selection(questions, randomize)
+    selection = create_selection(questions, randomize, exam_date)
+    print_selection(selection)
+
+    # Save selection
+    save_selection(selection, exam_date)
 
     # Build PDF files
     build_pdf(questions, selection, exam_date, True, verbose)

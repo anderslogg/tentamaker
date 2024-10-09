@@ -7,7 +7,8 @@ _dir_pdf = Path("pdf")
 _dir_png = Path("png")
 _dir_tmp = Path("tmp")
 _dir_config = Path("config")
-_dirs = [_dir_tex, _dir_pdf, _dir_png, _dir_tmp, _dir_config]
+_dir_selection = Path("selection")
+_dirs = [_dir_tex, _dir_pdf, _dir_png, _dir_tmp, _dir_config, _dir_selection]
 
 _pool = "pool.tex"
 _header = "header.tex"
