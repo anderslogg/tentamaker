@@ -322,7 +322,7 @@ def main():
     if len(sys.argv) < 2:
         help()
         sys.exit(1)
-    exam_date = sys.argv[1]
+    exam_date = sys.argv[-1]
     randomize = "--randomize" in sys.argv
     verbose = "--verbose" in sys.argv
     snapshots = "--no-snapshots" not in sys.argv
