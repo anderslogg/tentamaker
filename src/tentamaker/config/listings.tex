@@ -3,17 +3,18 @@
 \definecolor{tsgreen}{RGB}{28,132,95}
 
 \lstdefinestyle{pythonstyle}{
-  language=Python,               
-  basicstyle=\ttfamily\small,          
+  language=Python,
+  basicstyle=\ttfamily\small,
   keywordstyle=\color{tsorange},
-  stringstyle=\color{tsblue},      
-  commentstyle=\color{tsgreen},     
-  numbers=left,                 
-  numberstyle=\tiny,            
-  frame=single,                 
+  stringstyle=\color{tsblue},
+  commentstyle=\color{tsgreen},
+  numbers=left,
+  numberstyle=\tiny,
+  frame=single,
   linewidth=0.99\textwidth,
   aboveskip=0.5cm,
   belowskip=1.5cm,
 }
 
 \lstnewenvironment{python}[1][]{\lstset{style=pythonstyle}}{}
+\newcommand{\inputpython}[1]{\lstinputlisting[style=pythonstyle]{#1}}
