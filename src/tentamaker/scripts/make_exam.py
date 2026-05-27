@@ -224,7 +224,7 @@ def build_pdf(questions, selection, exam_date, include_solutions=True, verbose=F
         tex += "\\\\[-1em]\n"
         tex += "\\hrule\n"
         tex += "\\begin{itemize}\n"
-        tex += "\\setlength\itemsep{1em}\n"
+        tex += "\\setlength\\itemsep{1em}\n"
 
         # Iterate over questions
         _selection = [k for k in selection if k[0] == part]
@@ -245,7 +245,7 @@ def build_pdf(questions, selection, exam_date, include_solutions=True, verbose=F
         tex += "\\\\[-1em]\n"
         tex += "\\hrule\n"
         tex += "\\begin{itemize}\n"
-        tex += "\\setlength\itemsep{1em}\n"
+        tex += "\\setlength\\itemsep{1em}\n"
         for key in selection:
             part, number, index = key
             question, answer, solution = questions[key]
@@ -348,25 +348,47 @@ def build_png(questions, selection, exam_date, verbose=False):
 
 
 def help():
-    print("Usage: make-exam <exam date>")
+    print("Usage: make-exam [--randomize] [--verbose] [--no-snapshots] <exam date>")
+
+
+def parse_args(argv):
+    "Parse command-line arguments"
+
+    flags = {"--randomize", "--verbose", "--no-snapshots"}
+
+    if any(arg in ("-h", "--help") for arg in argv):
+        help()
+        sys.exit(0)
+
+    unknown = [arg for arg in argv if arg.startswith("-") and arg not in flags]
+    if unknown:
+        print(f"Unknown option: {unknown[0]}")
+        help()
+        sys.exit(1)
+
+    dates = [arg for arg in argv if not arg.startswith("-")]
+    if len(dates) != 1:
+        help()
+        sys.exit(1)
+
+    exam_date = dates[0]
+    randomize = "--randomize" in argv
+    verbose = "--verbose" in argv
+    snapshots = "--no-snapshots" not in argv
+
+    return exam_date, randomize, verbose, snapshots
 
 
 def main():
     print(f"This is TentaMaker, version {_version}\n")
 
+    # Parse command-line arguments
+    exam_date, randomize, verbose, snapshots = parse_args(sys.argv[1:])
+
     # Check if exam has been initialized
     if not os.path.exists(_config_path_local / "pool.tex"):
         print("Exam has not been initialized. Run 'init-exam' first.")
         return
-
-    # Parse command-line arguments
-    if len(sys.argv) < 2:
-        help()
-        sys.exit(1)
-    exam_date = sys.argv[-1]
-    randomize = "--randomize" in sys.argv
-    verbose = "--verbose" in sys.argv
-    snapshots = "--no-snapshots" not in sys.argv
 
     # Load questions from pool
     questions = load_questions()
